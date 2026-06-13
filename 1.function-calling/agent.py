@@ -1,6 +1,7 @@
 from openai import OpenAI
 import json
 from get_weather import get_weather
+from get_local_city import get_local_city
 
 # 我把 url 这些环境变量独立为一个组件了
 from env import env
@@ -14,7 +15,7 @@ messages = [
         "role": "system",
         "content": "你是一个硬核的AI助手。你需要调用工具来获取实时信息，并给出精准的回答。",
     },
-    {"role": "user", "content": "武汉和深圳今天哪里更适合出行？"},
+    {"role": "user", "content": "根据我所在地方的天气，建议我今天吃什么，穿什么？"},
 ]
 
 # 定义 AI 如何调用 本地函数
@@ -24,7 +25,7 @@ tools = [
         "function": {
             "name": "get_weather",  # 必须和 Python 里的函数名一致
             # 这里必须描述得精确详细
-            "description": "当用户询问天气、气温、穿衣建议时调用此工具。必须传入具体的城市名称。",
+            "description": "获取天气。当用户询问天气、气温、穿衣建议时调用此工具。必须传入具体的城市名称。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -34,6 +35,19 @@ tools = [
                     }
                 },
                 "required": ["city"],  # 告诉模型这个参数不给不行
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_local_city",
+            "description": "根据 IP 地址，获取当前用户所在的地址",
+            "parameters": {
+                # 不需要参数
+                "type": "object",
+                "properties": {},
+                "required": []
             },
         },
     }
@@ -73,13 +87,27 @@ while True:
                 weather_result = get_weather(func_args["city"])
                 print(f"    [查询结果]：{weather_result}")
 
-                #
                 messages.append(
                     {
                         "role": "tool",
                         "tool_call_id": tool_call.id,
                         "name": func_name,
                         "content": weather_result,
+                    }
+                )
+
+            elif func_name == 'get_local_city':
+                print(f"    [执行工具]：正在查询本地的地址")
+
+                city_result = get_local_city()
+                print(f"    [查询结果]：{city_result}")
+
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tool_call.id,
+                        "name": func_name,
+                        "content": city_result,
                     }
                 )
 

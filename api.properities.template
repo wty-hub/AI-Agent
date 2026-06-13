@@ -7,3 +7,6 @@ API_KEY=sk-d9yaa8a7a0294e24856f8628b0924c3c
 # 和风天气：
 HF_API_HOST=n94yP5a7pc.re.qweatherapi.com
 HF_API_KEY=41bb505afbfe49c28ed7c89640e4eda2
+
+# 搜索服务TAVILY的key
+TAVILY_API_KEY=tvly-你的key
